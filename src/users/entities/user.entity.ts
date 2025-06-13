@@ -44,4 +44,7 @@ export class UserEntity {
         inverseJoinColumn: { name: 'permission_id' }
     })
     permissions: PermissionEntity[];
+
+    @Column({ default: false })
+    isActive: boolean;
 }
