@@ -1,6 +1,7 @@
 import { CityEntity } from 'src/geography/entities/city.entity';
 import { PermissionEntity } from 'src/permissions/entities/permission.entity';
 import { RoleEntity } from 'src/roles/entities/role.entity';
+import { CommunityEntity } from 'src/communities/entities/community.entity';
 import {
     Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTable,
     JoinColumn
@@ -49,6 +50,12 @@ export class UserEntity {
         inverseJoinColumn: { name: 'permission_id' }
     })
     permissions: PermissionEntity[];
+
+    /**
+     * Liste des communautés dont l'utilisateur est membre
+     */
+    @ManyToMany(() => CommunityEntity, community => community.members)
+    communities: CommunityEntity[];
 
     @Column({ default: false })
     isActive: boolean;

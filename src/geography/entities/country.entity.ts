@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------------
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 import { CityEntity } from './city.entity';
+import { CommunityEntity } from 'src/communities/entities/community.entity';
 
 @Entity('countries')
 export class CountryEntity {
@@ -25,4 +26,10 @@ export class CountryEntity {
    */
   @OneToMany(() => CityEntity, city => city.country)
   cities: CityEntity[];
+
+  /**
+   * Liste des communautés associées à ce pays
+   */
+  @OneToMany(() => CommunityEntity, community => community.country)
+  communities: CommunityEntity[];
 }

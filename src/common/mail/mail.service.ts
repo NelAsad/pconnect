@@ -49,4 +49,75 @@ export class MailService {
       context: { otp },
     });
   }
+
+  /**
+   * Envoie un email à l'utilisateur pour l'informer que sa communauté est en attente de validation
+   * @param email Adresse email du créateur
+   * @param community Nom de la communauté
+   * @param user Nom du créateur
+   */
+  async sendCommunityPending(email: string, community: string, user: string): Promise<void> {
+    this.logger.log(`Notification création communauté en attente : ${community} (${email})`);
+    const templatePath = path.resolve(process.cwd(), 'templates', 'community-pending');
+    await this.mailerService.sendMail({
+      to: email,
+      subject: `Votre communauté "${community}" est en attente de validation`,
+      template: templatePath,
+      context: { community, user },
+    });
+  }
+
+  /**
+   * Envoie un email à l'utilisateur pour l'informer que sa coandidature pour integrer une communauté est en attente de validation
+   * @param email Adresse email du créateur
+   * @param community Nom de la communauté
+   * @param user Nom du créateur
+   */
+  async sendUserCommunityPending(email: string, community: string, user: string): Promise<void> {
+    this.logger.log(`Notification integration à la communauté en attente : ${community} (${email})`);
+    const templatePath = path.resolve(process.cwd(), 'templates', 'user-community-pending');
+    await this.mailerService.sendMail({
+      to: email,
+      subject: `Votre demande d'integrer la communauté "${community}" est en attente de validation`,
+      template: templatePath,
+      context: { community, user },
+    });
+  }
+
+  /**
+   * Envoie un email à l'utilisateur pour l'informer que sa coandidature pour integrer une communauté est accpetée
+   * @param email Adresse email du créateur
+   * @param community Nom de la communauté
+   * @param user Nom du créateur
+   */
+  async sendUserCommunityAccepted(email: string, community: string, user: string): Promise<void> {
+    this.logger.log(`Notification integration à la communauté acceptée : ${community} (${email})`);
+    const templatePath = path.resolve(process.cwd(), 'templates', 'user-community-accepted');
+    await this.mailerService.sendMail({
+      to: email,
+      subject: `Membre de la communauté "${community}" !`,
+      template: templatePath,
+      context: { community, user },
+    });
+  }
+
+  /**
+   * Envoie un email à l'utilisateur pour l'informer que sa coandidature pour integrer une communauté est rejetée
+   * @param email Adresse email du créateur
+   * @param community Nom de la communauté
+   * @param user Nom du créateur
+   */
+  async sendUserCommunityRejected(email: string, community: string, user: string): Promise<void> {
+    this.logger.log(`Notification integration à la communauté rejetée : ${community} (${email})`);
+    const templatePath = path.resolve(process.cwd(), 'templates', 'user-community-rejected');
+    await this.mailerService.sendMail({
+      to: email,
+      subject: `Candidature à la communauté "${community}" !`,
+      template: templatePath,
+      context: { community, user },
+    });
+  }
+
+
+  
 }
