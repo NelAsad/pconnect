@@ -172,7 +172,7 @@ export class UserController {
    * Liste paginée des utilisateurs (admin, permission requise)
    * @param page Numéro de page
    * @param limit Nombre d'éléments par page (max 100)
-   * @returns Liste paginée des utilisateurs
+   * @returns Liste paginée des utilisateurs (tous, même non visibles pour l'admin)
    */
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Permissions('user:list')
@@ -182,7 +182,8 @@ export class UserController {
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ) {
     limit = Math.min(limit, 100);
-    return this.userService.findAllPaginated({ page, limit });
+    // Pour l'admin, on veut tout, même les non visibles
+    return this.userService.findAllPaginated({ page, limit }, true);
   }
 
   /**

@@ -8,6 +8,7 @@ import { RoleEntity } from 'src/roles/entities/role.entity';
 import { PermissionEntity } from 'src/permissions/entities/permission.entity';
 import { UserOtpEntity } from './entities/user-otp.entity';
 import { MailService } from 'src/common/mail/mail.service';
+import { CityEntity } from 'src/geography/entities/city.entity';
 
 // -----------------------------------------------------------------------------
 // Module utilisateur
@@ -16,7 +17,7 @@ import { MailService } from 'src/common/mail/mail.service';
 // -----------------------------------------------------------------------------
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity, RoleEntity, PermissionEntity, UserOtpEntity])],
+  imports: [TypeOrmModule.forFeature([UserEntity, RoleEntity, PermissionEntity, UserOtpEntity, CityEntity])],
   controllers: [UserController],
   providers: [UserService, MailService],
   exports: [UserService],

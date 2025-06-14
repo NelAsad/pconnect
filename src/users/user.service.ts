@@ -300,15 +300,19 @@ export class UserService {
 
   /**
    * Récupère tous les utilisateurs avec pagination.
+   * Si adminMode est true, retourne tous les utilisateurs (visibles ou non).
    * @param options - Les options de pagination.
+   * @param adminMode - Si true, inclut les utilisateurs non visibles (admin only)
    * @returns Une page d'utilisateurs avec les relations nécessaires.
    */
-  async findAllPaginated(options: IPaginationOptions): Promise<Pagination<UserEntity>> {
+  async findAllPaginated(options: IPaginationOptions, adminMode = false): Promise<Pagination<UserEntity>> {
     const queryBuilder = this.userRepository.createQueryBuilder('user')
       .leftJoinAndSelect('user.role', 'role')
       .leftJoinAndSelect('role.permissions', 'role_permissions')
-      .leftJoinAndSelect('user.permissions', 'permissions')
-      .where('user.isVisible = :isVisible', { isVisible: true });
+      .leftJoinAndSelect('user.permissions', 'permissions');
+    if (!adminMode) {
+      queryBuilder.where('user.isVisible = :isVisible', { isVisible: true });
+    }
     return paginate<UserEntity>(queryBuilder, options);
   }
 
