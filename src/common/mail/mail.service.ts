@@ -1,3 +1,8 @@
+// -----------------------------------------------------------------------------
+// Service d'envoi d'emails (OTP, notifications)
+// Utilise le module Mailer de NestJS pour envoyer des emails transactionnels
+// Fournit des méthodes pour l'envoi d'OTP et de notifications personnalisées
+// -----------------------------------------------------------------------------
 import * as path from 'path';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable, Logger } from '@nestjs/common';
@@ -8,6 +13,11 @@ export class MailService {
 
   constructor(private readonly mailerService: MailerService) {}
 
+  /**
+   * Envoie un email contenant un OTP à l'utilisateur
+   * @param email Adresse email du destinataire
+   * @param otp Code OTP à envoyer
+   */
   async sendOtp(email: string, otp: string): Promise<void> {
     this.logger.log(`Envoi OTP ${otp} à ${email}`);
 
@@ -24,6 +34,11 @@ export class MailService {
     });
   }
 
+  /**
+   * Envoie un email de renvoi d'OTP à l'utilisateur
+   * @param email Adresse email du destinataire
+   * @param otp Code OTP à envoyer
+   */
   async sendResendOtp(email: string, otp: string): Promise<void> {
     this.logger.log(`Renvoi OTP ${otp} à ${email}`);
     const templatePath = path.resolve(process.cwd(), 'templates', 'resend-otp');

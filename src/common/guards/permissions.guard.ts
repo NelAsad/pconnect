@@ -1,5 +1,9 @@
 // src/common/guards/permissions.guard.ts
-
+// -----------------------------------------------------------------------------
+// Guard de permissions (contrôle d'accès par permissions)
+// Vérifie que l'utilisateur authentifié possède toutes les permissions requises
+// Utilisé pour sécuriser les routes nécessitant des droits spécifiques
+// -----------------------------------------------------------------------------
 import {
   Injectable,
   CanActivate,
@@ -15,6 +19,11 @@ import { UserEntity } from 'src/users/entities/user.entity';
 export class PermissionsGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
+  /**
+   * Vérifie que l'utilisateur possède toutes les permissions requises pour accéder à la ressource
+   * @param context Contexte d'exécution NestJS
+   * @returns true si l'accès est autorisé, sinon lève une exception
+   */
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // Récupère les permissions requises depuis le décorateur
     const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
@@ -35,21 +44,16 @@ export class PermissionsGuard implements CanActivate {
 
     // Permissions issues du rôle
     const rolePermissions = user.role?.permissions?.map(p => p.name) || [];
-
     // Permissions assignées directement à l'utilisateur
     const directPermissions = user.permissions?.map(p => p.name) || [];
-
     // Fusionner et dédupliquer les permissions
     const allPermissions = new Set([...rolePermissions, ...directPermissions]);
-
     const hasAllPermissions = requiredPermissions.every(p =>
       allPermissions.has(p),
     );
-
     if (!hasAllPermissions) {
       throw new ForbiddenException('Permissions insuffisantes.');
     }
-
     return true;
   }
 }

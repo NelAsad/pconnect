@@ -1,9 +1,19 @@
+// -----------------------------------------------------------------------------
+// Filtre global de gestion des exceptions
+// Intercepte toutes les exceptions non gérées et retourne une réponse structurée
+// Loggue les erreurs critiques pour le monitoring
+// -----------------------------------------------------------------------------
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, Logger } from '@nestjs/common';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
   private readonly logger = new Logger(AllExceptionsFilter.name);
 
+  /**
+   * Intercepte et gère toutes les exceptions non catchées par NestJS
+   * @param exception Exception levée
+   * @param host Contexte d'exécution
+   */
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse();

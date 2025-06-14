@@ -1,3 +1,7 @@
+// Module d'authentification centralisant la gestion des tokens, stratégies JWT et endpoints liés à l'auth
+// Fournit les services, contrôleurs et stratégies nécessaires à l'authentification JWT et refresh
+// Importe les entités User, Role, Permission pour la gestion des droits
+// Utilise Passport et JwtModule pour la sécurité
 // src/auth/auth.module.ts
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';

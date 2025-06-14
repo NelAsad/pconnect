@@ -6,6 +6,11 @@ import {
     JoinColumn
 } from 'typeorm';
 
+// -----------------------------------------------------------------------------
+// Entité User
+// Représente un utilisateur dans la base de données.
+// Possède des relations avec City, Role, Permission, OTP, etc.
+// -----------------------------------------------------------------------------
 
 @Entity('users')
 export class UserEntity {
@@ -47,4 +52,10 @@ export class UserEntity {
 
     @Column({ default: false })
     isActive: boolean;
+
+    @Column({ default: true })
+    isVisible: boolean;
+
+    @Column({ nullable: true })
+    profilePicture?: string;
 }

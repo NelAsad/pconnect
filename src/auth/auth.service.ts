@@ -18,7 +18,9 @@ export class AuthService {
         private userRepository: Repository<UserEntity>,
     ) { }
 
-    // Les méthodes getTokens, login, updateRefreshToken, etc. iront ici
+    /**
+     * Génère un accessToken et un refreshToken pour un utilisateur donné
+     */
     async getTokens(userId: string, email: string): Promise<{ accessToken: string; refreshToken: string }> {
         const [accessToken, refreshToken] = await Promise.all([
             this.jwtService.signAsync(
@@ -40,7 +42,10 @@ export class AuthService {
         return { accessToken, refreshToken };
     }
 
-
+    /**
+     * Authentifie un utilisateur à partir de son email et mot de passe
+     * Retourne les tokens si succès
+     */
     async login(dto: LoginDto) {
         const user = await this.userService.findByEmail(dto.email); // Implémente findByEmail dans UserService
 
@@ -55,6 +60,9 @@ export class AuthService {
         return tokens;
     }
 
+    /**
+     * Inscrit un nouvel utilisateur et retourne ses tokens
+     */
     async register(dto: RegisterDto) {
         // Utilise le UserService pour créer l'utilisateur
         const user = await this.userService.create(dto);
@@ -64,6 +72,9 @@ export class AuthService {
         return tokens;
     }
 
+    /**
+     * Met à jour le refresh token hashé pour un utilisateur (ou le révoque si null)
+     */
     async updateRefreshToken(userId: number, refreshToken: string): Promise<void> {
         const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
@@ -72,6 +83,9 @@ export class AuthService {
         });
     }
 
+    /**
+     * Valide un refresh token et retourne l'utilisateur si valide
+     */
     async validateRefreshToken(userId: number, refreshToken: string): Promise<UserEntity | null> {
         const user = await this.userRepository.findOne({
             where: { id: userId },
@@ -86,6 +100,10 @@ export class AuthService {
         return user; // ici, il a toutes les permissions nécessaires
     }
 
+    /**
+     * Change le mot de passe d'un utilisateur après vérification de l'ancien
+     * Révoque le refresh token après changement
+     */
     async changePassword(userId: number, oldPassword: string, newPassword: string) {
         const user = await this.userService.findOneById(String(userId));
         const isMatch = await bcrypt.compare(oldPassword, user.password);

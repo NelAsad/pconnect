@@ -9,6 +9,12 @@ import { PermissionEntity } from 'src/permissions/entities/permission.entity';
 import { UserOtpEntity } from './entities/user-otp.entity';
 import { MailService } from 'src/common/mail/mail.service';
 
+// -----------------------------------------------------------------------------
+// Module utilisateur
+// Déclare les entités, services et contrôleurs liés à la gestion des utilisateurs.
+// À importer dans AppModule pour exposer les fonctionnalités utilisateurs à l'application.
+// -----------------------------------------------------------------------------
+
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity, RoleEntity, PermissionEntity, UserOtpEntity])],
   controllers: [UserController],

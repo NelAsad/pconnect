@@ -1,3 +1,8 @@
+// -----------------------------------------------------------------------------
+// Stratégie JWT-refresh pour l'authentification par refresh token
+// Valide le refresh token stocké en cookie httpOnly et charge l'utilisateur
+// Utilisé pour rafraîchir les tokens d'accès de manière sécurisée
+// -----------------------------------------------------------------------------
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -24,6 +29,13 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
     });
   }
 
+  /**
+   * Valide le refresh token et charge l'utilisateur associé
+   * @param req Requête HTTP contenant le cookie
+   * @param payload Données extraites du token
+   * @returns L'utilisateur authentifié si le token est valide
+   * @throws UnauthorizedException si le token est manquant ou invalide
+   */
   async validate(req: Request, payload: any): Promise<UserEntity> {
     const refreshToken = req.cookies?.refresh_token;
     if (!refreshToken) throw new UnauthorizedException('Token d’actualisation manquant');

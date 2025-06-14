@@ -1,19 +1,35 @@
+// -----------------------------------------------------------------------------
+// Entité Role
+// Représente un rôle dans la base de données
+// Possède des relations ManyToMany avec Permission et OneToMany avec User
+// -----------------------------------------------------------------------------
 import { PermissionEntity } from 'src/permissions/entities/permission.entity';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 
-
 @Entity('roles')
 export class RoleEntity {
+  /**
+   * Identifiant unique du rôle (clé primaire)
+   */
   @PrimaryGeneratedColumn()
   id: number;
 
+  /**
+   * Nom unique du rôle
+   */
   @Column({ unique: true })
   name: string;
 
+  /**
+   * Description optionnelle du rôle
+   */
   @Column({ nullable: true })
   description?: string;
 
+  /**
+   * Liste des permissions associées à ce rôle
+   */
   @ManyToMany(() => PermissionEntity, permission => permission.roles, { cascade: true })
   @JoinTable({
     name: 'roles_permissions',
@@ -22,6 +38,9 @@ export class RoleEntity {
   })
   permissions: PermissionEntity[];
 
+  /**
+   * Liste des utilisateurs associés à ce rôle
+   */
   @OneToMany(() => UserEntity, user => user.role)
   users: UserEntity[];
 }

@@ -1,4 +1,9 @@
 // src/common/decorators/permissions.decorator.ts
+// -----------------------------------------------------------------------------
+// Décorateur de permissions pour les routes et méthodes
+// Permet de déclarer les permissions requises pour accéder à une ressource
+// Utilisé avec le guard PermissionsGuard
+// -----------------------------------------------------------------------------
 
 import { SetMetadata } from '@nestjs/common';
 

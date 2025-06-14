@@ -1,5 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn } from 'typeorm';
 
+// -----------------------------------------------------------------------------
+// Entité UserOtp
+// Représente un code OTP associé à un utilisateur pour la validation d'email ou d'action.
+// -----------------------------------------------------------------------------
 @Entity('user_otps')
 export class UserOtpEntity {
   @PrimaryGeneratedColumn()
