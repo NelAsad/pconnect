@@ -8,7 +8,18 @@
 // - otp : le code OTP à 6 chiffres
 // -----------------------------------------------------------------------------
 
+import { ApiProperty } from '@nestjs/swagger';
+
 export class ValidateOtpDto {
+  /**
+   * Adresse e-mail de l'utilisateur
+   */
+  @ApiProperty({ example: 'user@email.com', description: "Adresse e-mail de l'utilisateur" })
   email: string;
+
+  /**
+   * Code OTP à 6 chiffres
+   */
+  @ApiProperty({ example: '123456', description: 'Code OTP à 6 chiffres' })
   otp: string;
 }

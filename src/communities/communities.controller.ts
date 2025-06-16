@@ -16,16 +16,19 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { CommunityApplicationEntity } from './entities/community-application.entity';
 import { InviteCommunityDto } from './dto/invite-community.dto';
 import { CommunityInvitationEntity } from './entities/community-invitation.entity';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery, ApiBody } from '@nestjs/swagger';
 
+@ApiTags('Communities')
 @Controller('communities')
 export class CommunitiesController {
     constructor(private readonly communitiesService: CommunitiesService) { }
 
     /**
      * Endpoint de création d'une communauté (statut PENDING, email envoyé au créateur)
-     * @param dto Données de la communauté à créer
-     * @param req Requête contenant l'utilisateur courant (JWT)
      */
+    @ApiOperation({ summary: 'Créer une nouvelle communauté' })
+    @ApiBody({ type: CreateCommunityDto })
+    @ApiResponse({ status: 201, description: 'Communauté créée', type: CommunityEntity })
     @UseGuards(JwtAuthGuard)
     @Post()
     async createCommunity(@Body() dto: CreateCommunityDto, @Req() req) {
@@ -35,10 +38,11 @@ export class CommunitiesController {
 
     /**
      * Endpoint pour lister toutes les communautés avec pagination
-     * @param page Numéro de page
-     * @param limit Nombre d'éléments par page (max 100)
-     * @returns Liste paginée des communautés
      */
+    @ApiOperation({ summary: 'Lister toutes les communautés paginées' })
+    @ApiQuery({ name: 'page', required: false, type: Number })
+    @ApiQuery({ name: 'limit', required: false, type: Number })
+    @ApiResponse({ status: 200, description: 'Liste paginée des communautés', type: Pagination })
     @Get()
     async findAllPaginated(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -50,11 +54,12 @@ export class CommunitiesController {
 
     /**
      * Endpoint pour lister les membres d'une communauté avec pagination
-     * @param id ID de la communauté
-     * @param page Numéro de page
-     * @param limit Nombre d'éléments par page (max 100)
-     * @returns Liste paginée des membres
      */
+    @ApiOperation({ summary: 'Lister les membres d’une communauté paginée' })
+    @ApiParam({ name: 'id', type: Number })
+    @ApiQuery({ name: 'page', required: false, type: Number })
+    @ApiQuery({ name: 'limit', required: false, type: Number })
+    @ApiResponse({ status: 200, description: 'Liste paginée des membres', type: Pagination })
     @Get(':id/members')
     async findMembersPaginated(
         @Param('id') id: string,
@@ -67,9 +72,10 @@ export class CommunitiesController {
 
     /**
      * Endpoint pour valider une communauté (changement de statut à VALIDATED)
-     * @param id ID de la communauté
-     * @returns La communauté validée
      */
+    @ApiOperation({ summary: 'Valider une communauté' })
+    @ApiParam({ name: 'id', type: Number })
+    @ApiResponse({ status: 200, description: 'Communauté validée', type: CommunityEntity })
     @Patch(':id/validate')
     async validateCommunity(@Param('id') id: string) {
         return this.communitiesService.validateCommunity(Number(id));
@@ -77,10 +83,11 @@ export class CommunitiesController {
 
     /**
      * Endpoint pour modifier une communauté
-     * @param id ID de la communauté
-     * @param dto Données à mettre à jour
-     * @returns La communauté mise à jour
      */
+    @ApiOperation({ summary: 'Mettre à jour une communauté' })
+    @ApiParam({ name: 'id', type: Number })
+    @ApiBody({ type: UpdateCommunityDto })
+    @ApiResponse({ status: 200, description: 'Communauté mise à jour', type: CommunityEntity })
     @Patch(':id')
     async updateCommunity(@Param('id') id: string, @Body() dto: UpdateCommunityDto) {
         return this.communitiesService.updateCommunity(Number(id), dto);
@@ -88,9 +95,11 @@ export class CommunitiesController {
 
     /**
      * Liste paginée des communautés validées (statut VALIDATED)
-     * @param page numéro de page (défaut: 1)
-     * @param limit nombre d'éléments par page (défaut: 10)
      */
+    @ApiOperation({ summary: 'Lister les communautés validées paginées' })
+    @ApiQuery({ name: 'page', required: false, type: Number })
+    @ApiQuery({ name: 'limit', required: false, type: Number })
+    @ApiResponse({ status: 200, description: 'Liste paginée des communautés validées', type: Pagination })
     @Get('validated')
     async getValidatedCommunities(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
@@ -103,9 +112,11 @@ export class CommunitiesController {
     }
 
     /**
-   * Récupère une communauté par son id avec tous ses détails
-   * @param id identifiant de la communauté
-   */
+     * Récupère une communauté par son id avec tous ses détails
+     */
+    @ApiOperation({ summary: 'Récupérer une communauté par id' })
+    @ApiParam({ name: 'id', type: Number })
+    @ApiResponse({ status: 200, description: 'Communauté trouvée', type: CommunityEntity })
     @Get(':id')
     async findOne(
         @Param('id', ParseIntPipe) id: number,
@@ -114,9 +125,11 @@ export class CommunitiesController {
     }
 
     /**
-   * Rejette une communauté (statut REJECTED)
-   * @param id identifiant de la communauté
-   */
+     * Rejette une communauté (statut REJECTED)
+     */
+    @ApiOperation({ summary: 'Rejeter une communauté' })
+    @ApiParam({ name: 'id', type: Number })
+    @ApiResponse({ status: 200, description: 'Communauté rejetée', type: CommunityEntity })
     @Patch(':id/reject')
     async rejectCommunity(
         @Param('id', ParseIntPipe) id: number,
@@ -125,9 +138,11 @@ export class CommunitiesController {
     }
 
     /**
-   * Suppression logique d'une communauté (soft delete)
-   * @param id identifiant de la communauté
-   */
+     * Suppression logique d'une communauté (soft delete)
+     */
+    @ApiOperation({ summary: 'Supprimer (soft delete) une communauté' })
+    @ApiParam({ name: 'id', type: Number })
+    @ApiResponse({ status: 200, description: 'Communauté supprimée', type: CommunityEntity })
     @Delete(':id')
     async softDeleteCommunity(
         @Param('id', ParseIntPipe) id: number,
@@ -136,10 +151,11 @@ export class CommunitiesController {
     }
 
     /**
-   * Permet à un utilisateur authentifié de soumettre sa candidature pour rejoindre une communauté.
-   * @param id identifiant de la communauté
-   * @param user utilisateur courant (extrait du JWT)
-   */
+     * Permet à un utilisateur authentifié de soumettre sa candidature pour rejoindre une communauté.
+     */
+    @ApiOperation({ summary: 'Candidater à une communauté' })
+    @ApiParam({ name: 'id', type: Number })
+    @ApiResponse({ status: 200, description: 'Candidature soumise' })
     @Post(':id/apply')
     @UseGuards(JwtAuthGuard)
     async applyToCommunity(
@@ -151,9 +167,11 @@ export class CommunitiesController {
     }
 
     /**
-   * Valide une demande d'adhésion à une communauté (accepte la candidature)
-   * @param applicationId identifiant de la candidature
-   */
+     * Valide une demande d'adhésion à une communauté (accepte la candidature)
+     */
+    @ApiOperation({ summary: 'Accepter une candidature à une communauté' })
+    @ApiParam({ name: 'applicationId', type: Number })
+    @ApiResponse({ status: 200, description: 'Candidature acceptée', type: CommunityApplicationEntity })
     @Patch('applications/:applicationId/accept')
     async acceptCommunityApplication(
         @Param('applicationId', ParseIntPipe) applicationId: number,
@@ -162,9 +180,11 @@ export class CommunitiesController {
     }
 
     /**
-   * Rejette une demande d'adhésion à une communauté (refuse la candidature)
-   * @param applicationId identifiant de la candidature
-   */
+     * Rejette une demande d'adhésion à une communauté (refuse la candidature)
+     */
+    @ApiOperation({ summary: 'Rejeter une candidature à une communauté' })
+    @ApiParam({ name: 'applicationId', type: Number })
+    @ApiResponse({ status: 200, description: 'Candidature rejetée', type: CommunityApplicationEntity })
     @Patch('applications/:applicationId/reject')
     async rejectCommunityApplication(
         @Param('applicationId', ParseIntPipe) applicationId: number,
@@ -174,10 +194,11 @@ export class CommunitiesController {
 
     /**
      * Endpoint pour inviter un utilisateur à rejoindre une communauté (envoie un email avec un token)
-     * @param id ID de la communauté
-     * @param dto Email de l'utilisateur à inviter
-     * @param user Utilisateur courant (JWT)
      */
+    @ApiOperation({ summary: 'Inviter un utilisateur à rejoindre une communauté' })
+    @ApiParam({ name: 'id', type: Number })
+    @ApiBody({ type: InviteCommunityDto })
+    @ApiResponse({ status: 200, description: 'Invitation envoyée' })
     @Post(':id/invitations')
     @UseGuards(JwtAuthGuard)
     async inviteToCommunity(
@@ -191,9 +212,10 @@ export class CommunitiesController {
 
     /**
      * Endpoint pour accepter une invitation à une communauté via le token reçu par email
-     * @param token Token d'invitation unique
-     * @param user Utilisateur courant (JWT)
      */
+    @ApiOperation({ summary: 'Accepter une invitation à une communauté' })
+    @ApiParam({ name: 'token', type: String })
+    @ApiResponse({ status: 200, description: 'Invitation acceptée' })
     @Post('invitations/:token/accept')
     @UseGuards(JwtAuthGuard)
     async acceptCommunityInvitation(
@@ -203,5 +225,4 @@ export class CommunitiesController {
         await this.communitiesService.acceptCommunityInvitation(token, user);
         return { message: 'Vous avez rejoint la communauté avec succès.' };
     }
-
 }

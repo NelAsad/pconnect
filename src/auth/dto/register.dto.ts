@@ -10,12 +10,14 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class RegisterDto {
   /**
    * Email de l'utilisateur
    * Doit être une adresse email valide
    */
+  @ApiProperty({ description: "Email de l'utilisateur", example: "user@email.com" })
   @IsEmail({}, { message: 'Email invalide' })
   email: string;
 
@@ -23,6 +25,7 @@ export class RegisterDto {
    * Mot de passe de l'utilisateur
    * Doit contenir au moins 6 caractères
    */
+  @ApiProperty({ description: "Mot de passe de l'utilisateur (min 6 caractères)", example: "password123" })
   @IsNotEmpty({ message: 'Mot de passe requis' })
   @MinLength(6, { message: 'Le mot de passe doit contenir au moins 6 caractères' })
   password: string;
@@ -30,6 +33,7 @@ export class RegisterDto {
   /**
    * Nom complet de l'utilisateur
    */
+  @ApiProperty({ description: "Nom complet de l'utilisateur", example: "Jean Dupont" })
   @IsNotEmpty({ message: 'Nom complet requis' })
   @IsString()
   fullName: string;
@@ -37,6 +41,7 @@ export class RegisterDto {
   /**
    * Description optionnelle du profil
    */
+  @ApiPropertyOptional({ description: 'Description optionnelle du profil', example: 'Développeur passionné.' })
   @IsOptional()
   @IsString()
   description?: string;
@@ -44,12 +49,14 @@ export class RegisterDto {
   /**
    * Identifiant de la ville (optionnel)
    */
+  @ApiPropertyOptional({ description: 'Identifiant de la ville', example: 42 })
   @IsOptional()
   cityId?: number;
 
   /**
    * Identifiant du rôle (optionnel)
    */
+  @ApiPropertyOptional({ description: 'Identifiant du rôle', example: 3 })
   @IsOptional()
   roleId?: number;
 

@@ -4,6 +4,12 @@
 // Utilisé par l'endpoint POST /users/:id/role
 // -----------------------------------------------------------------------------
 
+import { ApiProperty } from '@nestjs/swagger';
+
 export class UserRoleDto {
+  /**
+   * Identifiant du rôle à attribuer à l'utilisateur
+   */
+  @ApiProperty({ example: 2, description: 'ID du rôle à attribuer' })
   roleId: number;
 }

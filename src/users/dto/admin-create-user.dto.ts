@@ -1,3 +1,5 @@
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 // -----------------------------------------------------------------------------
 // DTO de création d'utilisateur par l'admin
 // Définit la structure des données pour la création d'un utilisateur par un administrateur.
@@ -5,11 +7,25 @@
 // -----------------------------------------------------------------------------
 
 export class AdminCreateUserDto {
-  email: string; // Adresse e-mail de l'utilisateur
-  fullName: string; // Nom complet de l'utilisateur
-  password: string; // Mot de passe de l'utilisateur
-  description?: string; // Description de l'utilisateur (facultatif)
-  cityId?: number; // Identifiant de la ville de l'utilisateur (facultatif)
-  roleId?: number; // Identifiant du rôle de l'utilisateur (facultatif)
-  isVisible?: boolean; // Indique si l'utilisateur est visible (facultatif)
+  /** Adresse e-mail de l'utilisateur */
+  @ApiProperty({ example: 'user@email.com', description: "Adresse e-mail de l'utilisateur" })
+  email: string;
+  /** Nom complet de l'utilisateur */
+  @ApiProperty({ example: 'Jean Dupont', description: "Nom complet de l'utilisateur" })
+  fullName: string;
+  /** Mot de passe de l'utilisateur */
+  @ApiProperty({ example: '********', description: 'Mot de passe de l’utilisateur' })
+  password: string;
+  /** Description de l'utilisateur (facultatif) */
+  @ApiPropertyOptional({ example: 'Développeur passionné', description: 'Description ou biographie de l’utilisateur' })
+  description?: string;
+  /** Identifiant de la ville de l'utilisateur (facultatif) */
+  @ApiPropertyOptional({ example: 1, description: 'ID de la ville de l’utilisateur' })
+  cityId?: number;
+  /** Identifiant du rôle de l'utilisateur (facultatif) */
+  @ApiPropertyOptional({ example: 2, description: 'ID du rôle de l’utilisateur' })
+  roleId?: number;
+  /** Indique si l'utilisateur est visible (facultatif) */
+  @ApiPropertyOptional({ example: true, description: 'Utilisateur visible ?' })
+  isVisible?: boolean;
 }

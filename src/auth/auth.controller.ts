@@ -6,10 +6,14 @@ import { RegisterDto } from './dto/register.dto';
 import { Request, Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 
-// Contrôleur d'authentification gérant les endpoints publics pour login, inscription, refresh, logout et changement de mot de passe
-// Utilise les guards JWT et JWT-refresh pour sécuriser les routes sensibles
-// Les cookies httpOnly sont utilisés pour le refresh token
+/**
+ * Contrôleur d'authentification gérant les endpoints publics pour login, inscription, refresh, logout et changement de mot de passe.
+ * Utilise les guards JWT et JWT-refresh pour sécuriser les routes sensibles.
+ * Les cookies httpOnly sont utilisés pour le refresh token.
+ */
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -18,6 +22,9 @@ export class AuthController {
    * Endpoint de connexion utilisateur
    * Retourne un accessToken et place le refreshToken en cookie httpOnly
    */
+  @ApiOperation({ summary: 'Connexion utilisateur' })
+  @ApiBody({ type: LoginDto })
+  @ApiResponse({ status: 200, description: 'Connexion réussie, accessToken retourné.' })
   @HttpCode(200)
   @Post('login')
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
@@ -36,6 +43,9 @@ export class AuthController {
    * Endpoint d'inscription utilisateur
    * Retourne un accessToken et place le refreshToken en cookie httpOnly
    */
+  @ApiOperation({ summary: 'Inscription utilisateur' })
+  @ApiBody({ type: RegisterDto })
+  @ApiResponse({ status: 201, description: 'Inscription réussie, accessToken retourné.' })
   @Post('register')
   async register(@Body() dto: RegisterDto, @Res({ passthrough: true }) res: Response) {
     const tokens = await this.authService.register(dto);
@@ -52,6 +62,8 @@ export class AuthController {
   /**
    * Endpoint pour rafraîchir les tokens (nécessite le refreshToken en cookie)
    */
+  @ApiOperation({ summary: 'Rafraîchir les tokens (JWT)' })
+  @ApiResponse({ status: 200, description: 'Nouveaux tokens retournés.' })
   @UseGuards(AuthGuard('jwt-refresh'))
   @Post('refresh')
   async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
@@ -60,10 +72,10 @@ export class AuthController {
     await this.authService.updateRefreshToken(user.id, tokens.refreshToken);
     res.cookie('refresh_token', tokens.refreshToken, {
       httpOnly: true,
-      secure: true, // à activer en production
+      secure: true,
       sameSite: 'strict',
       path: '/auth/refresh',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     return { accessToken: tokens.accessToken };
   }
