@@ -118,6 +118,26 @@ export class MailService {
     });
   }
 
-
-  
+  /**
+   * Envoie une invitation à rejoindre une communauté
+   * @param email Adresse email de l'invité
+   * @param communityName Nom de la communauté
+   * @param token Token d'invitation
+   */
+  async sendCommunityInvitation(email: string, communityName: string, token: string): Promise<void> {
+    this.logger.log(`Envoi invitation à ${email} pour la communauté ${communityName}`);
+    const invitationLink = `${process.env.FRONTEND_URL || 'http://localhost:4200'}/communities/invitations/${token}/accept`;
+    const expirationDate = new Date(Date.now() + 1000 * 60 * 60 * 24 * 3).toLocaleDateString();
+    const templatePath = path.resolve(process.cwd(), 'templates', 'community-invitation');
+    await this.mailerService.sendMail({
+      to: email,
+      subject: `Invitation à rejoindre la communauté "${communityName}"`,
+      template: templatePath,
+      context: {
+        communityName,
+        invitationLink,
+        expirationDate,
+      },
+    });
+  }
 }

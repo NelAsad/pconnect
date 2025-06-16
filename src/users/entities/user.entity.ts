@@ -2,9 +2,11 @@ import { CityEntity } from 'src/geography/entities/city.entity';
 import { PermissionEntity } from 'src/permissions/entities/permission.entity';
 import { RoleEntity } from 'src/roles/entities/role.entity';
 import { CommunityEntity } from 'src/communities/entities/community.entity';
+import { AnnouncementEntity } from 'src/announcements/entities/announcement.entity';
+import { RatingEntity } from 'src/ratings/entities/rating.entity';
 import {
     Entity, PrimaryGeneratedColumn, Column, ManyToOne, ManyToMany, JoinTable,
-    JoinColumn
+    JoinColumn, OneToMany
 } from 'typeorm';
 
 // -----------------------------------------------------------------------------
@@ -65,4 +67,13 @@ export class UserEntity {
 
     @Column({ nullable: true })
     profilePicture?: string;
+
+    @OneToMany(() => AnnouncementEntity, announcement => announcement.user)
+    announcements: AnnouncementEntity[];
+
+    @OneToMany(() => RatingEntity, rating => rating.sender)
+    ratingsSent: RatingEntity[];
+
+    @OneToMany(() => RatingEntity, rating => rating.receiver)
+    ratingsReceived: RatingEntity[];
 }

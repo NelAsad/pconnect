@@ -14,6 +14,8 @@ import { CommunityStatus } from 'src/common/enums/community-status.enum';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { CommunityApplicationEntity } from './entities/community-application.entity';
+import { InviteCommunityDto } from './dto/invite-community.dto';
+import { CommunityInvitationEntity } from './entities/community-invitation.entity';
 
 @Controller('communities')
 export class CommunitiesController {
@@ -168,6 +170,38 @@ export class CommunitiesController {
         @Param('applicationId', ParseIntPipe) applicationId: number,
     ): Promise<CommunityApplicationEntity> {
         return this.communitiesService.rejectCommunityApplication(applicationId);
+    }
+
+    /**
+     * Endpoint pour inviter un utilisateur à rejoindre une communauté (envoie un email avec un token)
+     * @param id ID de la communauté
+     * @param dto Email de l'utilisateur à inviter
+     * @param user Utilisateur courant (JWT)
+     */
+    @Post(':id/invitations')
+    @UseGuards(JwtAuthGuard)
+    async inviteToCommunity(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: InviteCommunityDto,
+        @CurrentUser() user: UserEntity,
+    ): Promise<{ message: string }> {
+        await this.communitiesService.inviteToCommunity(id, dto.email, user);
+        return { message: 'Invitation envoyée avec succès.' };
+    }
+
+    /**
+     * Endpoint pour accepter une invitation à une communauté via le token reçu par email
+     * @param token Token d'invitation unique
+     * @param user Utilisateur courant (JWT)
+     */
+    @Post('invitations/:token/accept')
+    @UseGuards(JwtAuthGuard)
+    async acceptCommunityInvitation(
+        @Param('token') token: string,
+        @CurrentUser() user: UserEntity,
+    ): Promise<{ message: string }> {
+        await this.communitiesService.acceptCommunityInvitation(token, user);
+        return { message: 'Vous avez rejoint la communauté avec succès.' };
     }
 
 }

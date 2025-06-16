@@ -12,6 +12,9 @@ import { UserEntity } from 'src/users/entities/user.entity';
 import { CommunityStatus } from 'src/common/enums/community-status.enum';
 import { paginate, Pagination, IPaginationOptions } from 'nestjs-typeorm-paginate';
 import { CommunityApplicationEntity } from './entities/community-application.entity';
+import { CommunityInvitationEntity, CommunityInvitationStatus } from './entities/community-invitation.entity';
+import { InviteCommunityDto } from './dto/invite-community.dto';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class CommunitiesService {
@@ -21,6 +24,7 @@ export class CommunitiesService {
         private userRepository: Repository<UserEntity>,
         private applicationRepository: Repository<CommunityApplicationEntity>,
         private mailService: MailService,
+        private invitationRepository: Repository<CommunityInvitationEntity>,
     ) { }
 
     /**
@@ -271,6 +275,62 @@ export class CommunitiesService {
         await this.mailService.sendUserCommunityRejected(application.user.email, application.community.name, application.user.fullName || application.user.email);
 
         return savedApplication;
+    }
+
+    /**
+     * Invite un utilisateur à rejoindre une communauté (génère un token, envoie un email)
+     */
+    async inviteToCommunity(communityId: number, email: string, invitedBy: UserEntity): Promise<void> {
+        const community = await this.communityRepository.findOne({ where: { id: communityId }, relations: ['members'] });
+        if (!community) throw new NotFoundException('Communauté non trouvée');
+
+        // Vérifie si l'email appartient déjà à un membre
+        const isAlreadyMember = community.members.some(m => m.email === email);
+        if (isAlreadyMember) throw new BadRequestException('Cet utilisateur est déjà membre de la communauté.');
+
+        // Génère un token unique
+        const token = uuidv4();
+        const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 3); // 3 jours
+
+        // Crée et sauvegarde l'invitation
+        const invitation = this.invitationRepository.create({
+            email,
+            token,
+            status: CommunityInvitationStatus.PENDING,
+            community,
+            invitedBy,
+            expiresAt,
+        });
+        await this.invitationRepository.save(invitation);
+
+        // Envoie l'email d'invitation
+        await this.mailService.sendCommunityInvitation(email, community.name, token);
+    }
+
+    /**
+     * Accepte une invitation à une communauté via le token
+     */
+    async acceptCommunityInvitation(token: string, user: UserEntity): Promise<void> {
+        const invitation = await this.invitationRepository.findOne({ where: { token }, relations: ['community'] });
+        if (!invitation) throw new NotFoundException('Invitation non trouvée');
+        if (invitation.status !== CommunityInvitationStatus.PENDING) throw new BadRequestException('Invitation déjà utilisée ou expirée.');
+        if (invitation.expiresAt && invitation.expiresAt < new Date()) {
+            invitation.status = CommunityInvitationStatus.EXPIRED;
+            await this.invitationRepository.save(invitation);
+            throw new BadRequestException('Invitation expirée.');
+        }
+
+        // Ajoute l'utilisateur aux membres de la communauté
+        const community = await this.communityRepository.findOne({ where: { id: invitation.community.id }, relations: ['members'] });
+        if (!community) throw new NotFoundException('Communauté non trouvée');
+        if (!community.members.some(m => m.id === user.id)) {
+            community.members.push(user);
+            await this.communityRepository.save(community);
+        }
+
+        // Met à jour le statut de l'invitation
+        invitation.status = CommunityInvitationStatus.ACCEPTED;
+        await this.invitationRepository.save(invitation);
     }
 
 }

@@ -12,11 +12,13 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { CityEntity } from 'src/geography/entities/city.entity';
 import { CountryEntity } from 'src/geography/entities/country.entity';
 import { CommunityStatus } from 'src/common/enums/community-status.enum';
+import { AnnouncementEntity } from 'src/announcements/entities/announcement.entity';
 
 @Entity('communities')
 export class CommunityEntity {
@@ -98,4 +100,10 @@ export class CommunityEntity {
    */
   @ManyToOne(() => CountryEntity, { nullable: true, eager: false })
   country?: CountryEntity;
+
+  /**
+   * Annonces liées à la communauté (OneToMany avec AnnouncementEntity)
+   */
+  @OneToMany(() => AnnouncementEntity, announcement => announcement.community)
+  announcements: AnnouncementEntity[];
 }
