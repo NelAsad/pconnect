@@ -13,7 +13,7 @@ import { CityEntity } from 'src/geography/entities/city.entity';
 import * as fs from 'fs';
 import * as path from 'path';
 import { v4 as uuidv4 } from 'uuid';
-import { paginate, Pagination, IPaginationOptions } from 'nestjs-typeorm-paginate';
+import { Pagination, IPaginationOptions, paginate } from 'nestjs-typeorm-paginate';
 
 // -----------------------------------------------------------------------------
 // Service de gestion des utilisateurs
@@ -375,6 +375,38 @@ export class UserService {
     if (dto.isActive !== undefined) user.isActive = dto.isActive;
     if (dto.isVisible !== undefined) user.isVisible = dto.isVisible;
     return this.userRepository.save(user);
+  }
+
+  /**
+   * Met à jour le fcmToken d'un utilisateur.
+   * @param userId - L'identifiant de l'utilisateur.
+   * @param fcmToken - Le nouveau fcmToken à enregistrer.
+   * @returns L'utilisateur avec le fcmToken mis à jour.
+   * @throws NotFoundException si l'utilisateur n'est pas trouvé.
+   */
+  async updateFcmToken(userId: number, fcmToken: string): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) throw new NotFoundException('Utilisateur non trouvé');
+    user.fcmToken = fcmToken;
+    return this.userRepository.save(user);
+  }
+
+  /**
+   * Recherche des utilisateurs par description avec pagination.
+   * @param keyword - Le mot-clé à rechercher dans la description.
+   * @param page - Le numéro de la page à récupérer.
+   * @param limit - Le nombre d'utilisateurs par page.
+   * @returns Une page d'utilisateurs correspondant à la recherche.
+   */
+  async searchByDescription(keyword: string, page = 1, limit = 10): Promise<Pagination<UserEntity>> {
+    const options: IPaginationOptions = { page, limit };
+    const qb = this.userRepository.createQueryBuilder('user')
+      .where('user.isVisible = true');
+    if (keyword) {
+      qb.andWhere('LOWER(user.description) LIKE :kw', { kw: `%${keyword.toLowerCase()}%` });
+    }
+    qb.orderBy('user.createdAt', 'DESC');
+    return paginate<UserEntity>(qb, options);
   }
 
 }

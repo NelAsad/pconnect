@@ -13,6 +13,8 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { Permissions } from 'src/common/decorators/permissions.decorator';
 import { PermissionsGuard } from 'src/common/guards/permissions.guard';
+import { UserEntity } from './entities/user.entity';
+import { Pagination } from 'nestjs-typeorm-paginate';
 
 // -----------------------------------------------------------------------------
 // Contrôleur utilisateur
@@ -222,5 +224,29 @@ export class UserController {
   @Patch(':id/visibility')
   async adminSetVisibility(@Param('id') id: string, @Body('isVisible') isVisible: boolean) {
     return this.userService.update(Number(id), { isVisible });
+  }
+
+  /**
+   * Met à jour le fcmToken d'un utilisateur
+   */
+  @Patch(':id/fcm-token')
+  async updateFcmToken(@Param('id') id: string, @Body('fcmToken') fcmToken: string) {
+    return this.userService.updateFcmToken(Number(id), fcmToken);
+  }
+
+  /**
+   * Recherche d'utilisateurs par description (public)
+   * @param keyword Mot-clé à rechercher dans la description
+   * @param page Numéro de page
+   * @param limit Nombre d'éléments par page (max 100)
+   * @returns Liste paginée des utilisateurs correspondant à la recherche
+   */
+  @Get('search')
+  async searchByDescription(
+    @Query('keyword') keyword: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10
+  ): Promise<Pagination<UserEntity>> {
+    return this.userService.searchByDescription(keyword, Number(page), Number(limit));
   }
 }

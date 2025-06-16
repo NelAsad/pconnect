@@ -76,4 +76,7 @@ export class UserEntity {
 
     @OneToMany(() => RatingEntity, rating => rating.receiver)
     ratingsReceived: RatingEntity[];
+
+    @Column({ nullable: true })
+    fcmToken?: string;
 }
